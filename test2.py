@@ -23,6 +23,7 @@ pr = PyRep()
 pr.launch(SCENE_FILE, headless=False)
 pr.start()
 panda = Panda()
+panda1 = Panda(1)
 cubes = []
 pos = [[0.675, -0.45, 0.82],[0.65, -0.225, 0.82],[0.45, -0.175, 0.82],[0.425, 0.2, 0.82],[0.625, 0.275, 0.82],[0.625, 0.525, 0.82]]
 dummies = [Dummy.create() for i in range(0,6)]
@@ -31,27 +32,24 @@ for i in range(0,6):
     cubes.append(cube)
     cube.set_position(pos[i])
     dummies[i].set_position(pos[i])
+    dummies[i].set_parent(cubes[i])
+pr.step()
+try:
+    path = panda.get_path(position= pos[0], euler = [0, math.radians(180),0])
+except ConfigurationPathError as e:
+    print('Could not find path')
+done = False
+
+while not done:
+    done = path.step()
     pr.step()
-for i in range(0,3):
-    try:
-        path = panda.get_path(
-            position = pos[i+3], quaternion= dummies[i+3].get_quaternion())
-    except ConfigurationPathError as e:
-        print('Could not find path')
-        continue
-    done = False
-    while not done:
-        done = path.step()
-        pr.step()
-    try:
-        path2 = panda1.get_path(
-            position = pos[i+3], quaternion= dummies[i+3].get_quaternion())
-    except ConfigurationPathError as e:
-        print('Could not find path')
-        continue
-    done = False
-    while not done:
-        done = path2.step()
-        pr.step()
+try:
+    path = panda1.get_path(position = pos[0], euler = [0, math.radians(180),0])
+except ConfigurationPathError as e:
+    print('Could not find path')
+done = False
+while not done:
+    done = path.step()
+    pr.step()
 pr.stop()
 pr.shutdown()
