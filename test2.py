@@ -31,13 +31,27 @@ for i in range(0,6):
     cubes.append(cube)
     cube.set_position(pos[i])
     dummies[i].set_position(pos[i])
+    pr.step()
 for i in range(0,3):
-    path = panda.get_path(
-            position=pos, euler=[0, math.radians(180), 0])
+    try:
+        path = panda.get_path(
+            position = pos[i+3], quaternion= dummies[i+3].get_quaternion())
     except ConfigurationPathError as e:
         print('Could not find path')
         continue
-    move_arm(panda1,pos[2*i+1],dummies[2*i+1].get_quaternion())
-pr.step()
+    done = False
+    while not done:
+        done = path.step()
+        pr.step()
+    try:
+        path2 = panda1.get_path(
+            position = pos[i+3], quaternion= dummies[i+3].get_quaternion())
+    except ConfigurationPathError as e:
+        print('Could not find path')
+        continue
+    done = False
+    while not done:
+        done = path2.step()
+        pr.step()
 pr.stop()
 pr.shutdown()
