@@ -34,22 +34,43 @@ for i in range(0,6):
     dummies[i].set_position(pos[i])
     dummies[i].set_parent(cubes[i])
 pr.step()
-try:
-    path = panda.get_path(position= pos[0], euler = [0, math.radians(180),0])
-except ConfigurationPathError as e:
-    print('Could not find path')
-done = False
+prev_pos, quat = panda.get_tip().get_position(), panda.get_tip().get_quaternion()
+prev_pos1,quat1 = panda1.get_tip().get_position(), panda1.get_tip().get_quaternion()
+for i in range(0,3):
+    try:
+        path = panda.get_path(position= prev_pos, quaternion = quat)
+    except ConfigurationPathError as e:
+        print('Could not find path')
+    done = False
+    while not done:
+        done = path.step()
+        pr.step()
+    try:
+        path = panda1.get_path(position= prev_pos1, quaternion = quat1)
+    except ConfigurationPathError as e:
+        print('Could not find path')
+    done = False
+    while not done:
+        done = path.step()
+        pr.step()
 
-while not done:
-    done = path.step()
-    pr.step()
-try:
-    path = panda1.get_path(position = pos[0], euler = [0, math.radians(180),0])
-except ConfigurationPathError as e:
-    print('Could not find path')
-done = False
-while not done:
-    done = path.step()
-    pr.step()
+    try:
+        path = panda.get_path(position= cubes[i].get_position(), euler = [0, math.radians(180),0])
+    except ConfigurationPathError as e:
+        print('Could not find path')
+    done = False
+
+    while not done:
+        done = path.step()
+        pr.step()
+
+    try:
+        path = panda1.get_path(position = cubes[3+i].get_position(), euler = [0, math.radians(180),0])
+    except ConfigurationPathError as e:
+        print('Could not find path')
+    done = False
+    while not done:
+        done = path.step()
+        pr.step()
 pr.stop()
 pr.shutdown()
